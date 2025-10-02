@@ -1,0 +1,59 @@
+{
+  "user": "thiru",
+  "wardrobe": [
+    {
+      "item_id": "shirt_001",
+      "type": "shirt",
+      "color": "black",
+      "style": "casual",
+      "fit": "slim",
+      "last_worn": null,
+      "times_worn": 0
+    },
+    {
+      "item_id": "shirt_002",
+      "type": "shirt",
+      "color": "white",
+      "style": "formal",
+      "fit": "regular",
+      "last_worn": "2025-10-02",
+      "times_worn": 1
+    },
+    {
+      "item_id": "pants_001",
+      "type": "pants",
+      "color": "beige",
+      "style": "semi-formal",
+      "fit": "slim",
+      "last_worn": "2025-10-02",
+      "times_worn": 1
+    },
+    {
+      "item_id": "shoes_001",
+      "type": "sneakers",
+      "color": "white",
+      "style": "casual",
+      "fit": "universal",
+      "last_worn": null,
+      "times_worn": 0
+    },
+    {
+      "item_id": "shoes_002",
+      "type": "loafers",
+      "color": "brown",
+      "style": "formal",
+      "fit": "universal",
+      "last_worn": "2025-10-02",
+      "times_worn": 1
+    },
+    {
+      "item_id": "jacket_001",
+      "type": "jacket",
+      "color": "navy blue",
+      "style": "semi-formal",
+      "fit": "regular",
+      "last_worn": "2025-10-02",
+      "times_worn": 1
+    }
+  ]
+}
