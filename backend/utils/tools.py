@@ -1,59 +1,70 @@
-import os
-import json
 from autogen_core.tools import FunctionTool
 from datetime import datetime
 from typing import List, Dict, Any
+from routes.mongocl import get_wardrobe, update_item_worn
 
-async def get_wardrobe_data_path():
-    path= os.path.join(os.path.dirname(__file__), '..', 'data', 'mock_data.json')
-    with open(path, 'r') as file:
-        data = json.load(file)
-    return data
-def update_wardrobe_last_worn(item_ids: List[str], data_path: str = None) -> bool:
+async def get_wardrobe_items() -> List[Dict[str, Any]]:
+    """
+    Get all items from the wardrobe database.
+
+    Returns:
+        List[Dict[str, Any]]: List of wardrobe items.
+    """
+    return await get_wardrobe()
+
+async def update_worn_items(item_ids: List[str]) -> bool:
     """
     Update the last_worn date and increment times_worn for the given items.
 
     Args:
-        item_ids (List[str]): List of item_id strings that the user wore.
-        data_path (str): Path to the JSON file containing wardrobe data.
+        item_ids (List[str]): List of MongoDB ObjectId strings that the user wore.
 
     Returns:
-        bool: True if update successful.
+        bool: True if all updates were successful.
     """
-    if not data_path:
-        data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'mock_data.json')
-
-    with open(data_path, 'r', encoding='utf-8') as f:
-        wardrobe_data = json.load(f)
-
-    today = datetime.today().strftime('%Y-%m-%d')
-
-    # Update last_worn and times_worn
-    for item in wardrobe_data['wardrobe']:
-        if item['item_id'] in item_ids:
-            item['last_worn'] = today
-            item['times_worn'] += 1
-
-    with open(data_path, 'w', encoding='utf-8') as f:
-        json.dump(wardrobe_data, f, indent=2)
-
-    return True
+    try:
+        for item_id in item_ids:
+            await update_item_worn(item_id)
+        return True
+    except Exception as e:
+        print(f"Error updating worn items: {str(e)}")
+        return False
 
 
 async def mark_items_worn(item_ids: List[str]) -> Dict[str, Any]:
     """
     Async wrapper that marks items as worn.
+    
+    Args:
+        item_ids (List[str]): List of MongoDB ObjectId strings that the user wore.
+        
+    Returns:
+        Dict[str, Any]: Status of the update operation
     """
-    update_wardrobe_last_worn(item_ids)
-    return {"status": "success", "updated_items": item_ids}
+    success = await update_worn_items(item_ids)
+    return {
+        "status": "success" if success else "error",
+        "updated_items": item_ids if success else []
+    }
+
+async def suggest_outfits() -> Dict[str, Any]:
+    """
+    Get wardrobe data and prepare for outfit suggestions.
+    
+    Returns:
+        Dict[str, Any]: All wardrobe items for outfit suggestions
+    """
+    items = await get_wardrobe_items()
+    return {"wardrobe": items}
 
 MarkAsWornTool = FunctionTool(
     name="MarkAsWorn",
     description="Mark selected wardrobe items as worn today and increment their wear count.",
     func=mark_items_worn
 )
+
 WardrobeLook = FunctionTool(
     name="WardrobeLook",
     description="Use this tool to check the user's wardrobe data and suggest outfit combinations based on their clothes, colors, types, and styles.",
-    func=get_wardrobe_data_path,
+    func=suggest_outfits
 )
